@@ -17,10 +17,14 @@ const index = ({ respond }) => {
                     </ListItem>
                 );
             }
-            if (e.theory) return <ListItem> Teoria: {e.theory.date}</ListItem>;
+            if (e.theory) return <ListItem key={eindex}> Teoria: {e.theory.date}</ListItem>;
         });
 
-        return <List day={dates[index]}>{items}</List>;
+        return (
+            <List key={index} day={dates[index]}>
+                {items}
+            </List>
+        );
     });
     return (
         <div>

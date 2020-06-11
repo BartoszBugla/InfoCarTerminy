@@ -8,7 +8,7 @@ const P = styled.p`
     font-size: 27px;
 `;
 
-const List = () => {
+const List = ({ day, children }) => {
     return (
         <Container>
             <P>{day}</P>
