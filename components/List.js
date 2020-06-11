@@ -7,11 +7,14 @@ const Container = styled.ul`
 const P = styled.p`
     font-size: 27px;
 `;
-export default function List({ children, day }) {
+
+const List = () => {
     return (
         <Container>
             <P>{day}</P>
             {children}
         </Container>
     );
-}
+};
+
+export default List;
