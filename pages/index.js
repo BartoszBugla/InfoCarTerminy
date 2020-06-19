@@ -1,15 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import List from "../components/List";
 import ListItem from "../components/ListItem";
+import Select from "../components/Select";
+import Router from "next/router";
 
-const index = ({ respond }) => {
-    let arrayOfItems = Object.values(respond);
-    let dates = Object.keys(respond);
-    let status = "Brak praktyki";
+let words = [{ name: "jastrzębie zdrój", id: 48 }];
+const index = ({ resData, wordID }) => {
+    const [data, setData] = useState(resData);
+
+    let arrayOfItems = Object.values(data);
+    let dates = Object.keys(data);
+
     let lists = arrayOfItems.map((i, index) => {
         const items = i.map((e, eindex) => {
             if (e.practice) {
-                status = "Jest egzamin praktyczny!";
                 return (
                     <ListItem key={eindex}>
                         {" "}
@@ -26,26 +30,40 @@ const index = ({ respond }) => {
             </List>
         );
     });
+    const handleChange = (event) => {
+        Router.push({
+            pathname: "/",
+            query: { id: event.target.value },
+        });
+    };
+    for (let i = 6; i < 12; i++) {}
     return (
         <div>
             Jastrzebie zdrój
+            <Select
+                onChange={handleChange}
+                value={wordID}
+                type="number"
+                title="wybór worda"
+                lastNumber="50"
+            />
             {lists}
-            <p>{status}</p>
         </div>
     );
 };
 
 index.getInitialProps = async (ctx) => {
-    let words = [{ name: "jastrzębie zdrój", id: 48 }];
-    let respond = {};
+    ctx.query.id ? ctx.query.id : (ctx.query.id = 48);
+    let resData = {};
     for (let i = 6; i < 12; i++) {
         const res = await fetch(
-            `https://info-car.pl/services/word/ajax/getSchedule?wordId=48&examCategory=B&month=2020-0${i}&_=1591863562242`
+            `https://info-car.pl/services/word/ajax/getSchedule?wordId=${ctx.query.id}&examCategory=B&month=2020-0${i}&_=1591863562242`
         );
         const json = await res.json();
-        respond = { ...respond, ...json.terms };
+        resData = { ...resData, ...json.terms };
     }
 
-    return { respond };
+    return { resData, wordID: ctx.query.id };
 };
+
 export default index;
