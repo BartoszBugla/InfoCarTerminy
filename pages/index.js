@@ -1,36 +1,85 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import List from "../components/List";
 import ListItem from "../components/ListItem";
 import Select from "../components/Select";
 import Router from "next/router";
+import styled from "styled-components";
+import Navbar from "../components/Navbar";
+import compareDateFunc from "../customFunctions/compareDateFunc";
+const Container = styled.div`
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: auto;
+    grid-gap: 30px 10px;
+    font-size: 16px;
+    @media only screen and (max-width: 1200px) {
+        grid-template-columns: repeat(3, 1fr);
+        font-size: 16px;
+    }
+    @media only screen and (max-width: 900px) {
+        grid-template-columns: repeat(2, 1fr);
+        font-size: 16px;
+    }
+    @media only screen and (max-width: 600px) {
+        grid-template-columns: repeat(1, 1fr);
+    }
+`;
+let words = [
+    { name: "Katowice", id: 45 },
+    { name: "Dąbrowa Górnicza", id: 46 },
+    { name: "Tychy", id: 47 },
+    { name: "Jastrzębie zdrój", id: 48 },
+    { name: "Rybnik", id: 49 },
+    { name: "Bytom", id: 50 },
+    { name: "Bielsko-Biała", id: 51 },
+];
 
-let words = [{ name: "jastrzębie zdrój", id: 48 }];
 const index = ({ resData, wordID }) => {
+    const word = words.find((word) => {
+        return word.id == wordID;
+    });
+
     const [data, setData] = useState(resData);
 
-    let arrayOfItems = Object.values(data);
-    let dates = Object.keys(data);
+    useEffect(() => {
+        setData(resData);
+    }, [resData]);
+
+    let arrayOfItems = Object.entries(data).sort(compareDateFunc);
 
     let lists = arrayOfItems.map((i, index) => {
-        const items = i.map((e, eindex) => {
+        let isPractice = false;
+        const items = i[1].map((e, eindex) => {
             if (e.practice) {
+                isPractice = true;
                 return (
-                    <ListItem key={eindex}>
-                        {" "}
-                        <b>Praktyka</b> : {e.practice[0].date}
-                    </ListItem>
+                    <ListItem
+                        places={e.practice[0].places}
+                        type="Praktyka"
+                        date={e.practice[0].date}
+                        key={eindex}
+                    />
                 );
             }
-            if (e.theory) return <ListItem key={eindex}> Teoria: {e.theory.date}</ListItem>;
+            if (e.theory)
+                return (
+                    <ListItem
+                        places={e.theory.places}
+                        type="Teoria"
+                        date={e.theory.date}
+                        key={eindex}
+                    />
+                );
         });
 
         return (
-            <List key={index} day={dates[index]}>
+            <List isPractice={isPractice} key={index} day={i[0]}>
                 {items}
             </List>
         );
     });
     const handleChange = (event) => {
+        event.persist();
         Router.push({
             pathname: "/",
             query: { id: event.target.value },
@@ -39,31 +88,33 @@ const index = ({ resData, wordID }) => {
     for (let i = 6; i < 12; i++) {}
     return (
         <div>
-            Jastrzebie zdrój
-            <Select
-                onChange={handleChange}
-                value={wordID}
-                type="number"
-                title="wybór worda"
-                lastNumber="50"
-            />
-            {lists}
+            <Navbar>
+                {word.name}
+                <Select
+                    onChange={handleChange}
+                    value={wordID}
+                    type="word"
+                    title="Wybór worda"
+                    options={words}
+                />
+            </Navbar>
+
+            <Container> {lists}</Container>
         </div>
     );
 };
 
-index.getInitialProps = async (ctx) => {
+export async function getServerSideProps(ctx) {
     ctx.query.id ? ctx.query.id : (ctx.query.id = 48);
+
     let resData = {};
     for (let i = 6; i < 12; i++) {
-        const res = await fetch(
-            `https://info-car.pl/services/word/ajax/getSchedule?wordId=${ctx.query.id}&examCategory=B&month=2020-0${i}&_=1591863562242`
-        );
+        const url = `https://info-car.pl/services/word/ajax/getSchedule?wordId=${ctx.query.id}&examCategory=B&month=2020-0${i}&_=1591863562242`;
+        const res = await fetch(url);
         const json = await res.json();
         resData = { ...resData, ...json.terms };
     }
 
-    return { resData, wordID: ctx.query.id };
-};
-
+    return { props: { resData, wordID: ctx.query.id } };
+}
 export default index;

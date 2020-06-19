@@ -5,7 +5,7 @@ const Container = styled.label`
     width: 120px;
 `;
 const StyledSelect = styled.select`
-    width: 100px;
+    width: 200px;
     text-align-last: center;
     height: 25px;
     border-radius: 5px;
@@ -16,11 +16,11 @@ const StyledSelect = styled.select`
     }
 `;
 
-//! type = [number,word]
-//! options if word
-//! divider if number
-//! startNumber = 0,
-//! lastNumber
+// type = [number,word]
+// options if word
+// divider if number
+// startNumber = 0,
+// lastNumber
 const Select = ({
     type,
     title,
@@ -45,8 +45,8 @@ const Select = ({
         case "word":
             Items = options.map((item, index) => {
                 return (
-                    <option key={index} value={index}>
-                        {item}
+                    <option key={item.id} value={item.id}>
+                        {item.name}
                     </option>
                 );
             });
