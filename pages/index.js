@@ -6,12 +6,15 @@ import Router from "next/router";
 import styled from "styled-components";
 import Navbar from "../components/Navbar";
 import compareDateFunc from "../customFunctions/compareDateFunc";
+import Footer from "../components/footer";
 const Container = styled.div`
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-auto-rows: auto;
     grid-gap: 30px 10px;
     font-size: 16px;
+    margin: 10px;
+
     @media only screen and (max-width: 1200px) {
         grid-template-columns: repeat(3, 1fr);
         font-size: 16px;
@@ -87,7 +90,7 @@ const index = ({ resData, wordID }) => {
     };
     for (let i = 6; i < 12; i++) {}
     return (
-        <div>
+        <div style={{ minHeight: "100vh" }}>
             <Navbar>
                 {word.name}
                 <Select
@@ -100,6 +103,8 @@ const index = ({ resData, wordID }) => {
             </Navbar>
 
             <Container> {lists}</Container>
+
+            <Footer />
         </div>
     );
 };
